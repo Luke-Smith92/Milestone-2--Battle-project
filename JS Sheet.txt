@@ -1,91 +1,57 @@
-const pokemonCards = [
-  {
-    name: "Pikachu",
-    hp: 35,
-    attack: 55,
-    defense: 30,
-    img: "https://img.pokemondb.net/artwork/pikachu.jpg"
-  },
-  {
-    name: "Charmander",
-    hp: 39,
-    attack: 52,
-    defense: 43,
-    img: "https://img.pokemondb.net/artwork/charmander.jpg"
-  },
-  {
-    name: "Squirtle",
-    hp: 44,
-    attack: 48,
-    defense: 65,
-    img: "https://img.pokemondb.net/artwork/squirtle.jpg"
-  }
-];
-
-const startBtn = document.getElementById("startBtn");
-const cardSelection = document.getElementById("cardSelection");
-const playerCards = document.getElementById("playerCards");
-const battleResult = document.getElementById("battleResult");
-const battleCards = document.getElementById("battleCards");
-const resultText = document.getElementById("resultText");
-
-startBtn.onclick = () => {
-  startBtn.style.display = "none";
-  cardSelection.classList.remove("hidden");
-  displayCards();
-};
-
-function displayCards() {
-  playerCards.innerHTML = "";
-  pokemonCards.forEach((card, index) => {
-    const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `
-      <h3>${card.name}</h3>
-      <img src="${card.img}" width="100" />
-      <p>HP: ${card.hp}</p>
-      <p>Attack: ${card.attack}</p>
-      <p>Defense: ${card.defense}</p>
-    `;
-    div.onclick = () => playBattle(index);
-    playerCards.appendChild(div);
-  });
-}
-
 function playBattle(playerIndex) {
-  const playerCard = pokemonCards[playerIndex];
+  const playerCard = { ...pokemonCards[playerIndex] };
   const aiIndex = Math.floor(Math.random() * pokemonCards.length);
-  const aiCard = pokemonCards[aiIndex];
+  const aiCard = { ...pokemonCards[aiIndex] };
+
+  playerCard.currentHp = playerCard.hp;
+  aiCard.currentHp = aiCard.hp;
 
   cardSelection.classList.add("hidden");
   battleResult.classList.remove("hidden");
 
   battleCards.innerHTML = `
-    <div class="card">
+    <div class="card" id="playerCard">
       <h3>You</h3>
       <img src="${playerCard.img}" width="100" />
       <p>${playerCard.name}</p>
+      <p>HP: <span id="playerHp">${playerCard.currentHp}</span></p>
     </div>
-    <div class="card">
+    <div class="card" id="aiCard">
       <h3>AI</h3>
       <img src="${aiCard.img}" width="100" />
       <p>${aiCard.name}</p>
+      <p>HP: <span id="aiHp">${aiCard.currentHp}</span></p>
     </div>
   `;
 
-  const playerScore = playerCard.attack + playerCard.defense;
-  const aiScore = aiCard.attack + aiCard.defense;
+  // Start the turn loop
+  let turn = 1;
 
-  if (playerScore > aiScore) {
-    resultText.textContent = "You win!";
-  } else if (playerScore < aiScore) {
-    resultText.textContent = "You lose!";
-  } else {
-    resultText.textContent = "It's a draw!";
-  }
-}
+  const interval = setInterval(() => {
+    if (turn % 2 === 1) {
+      // Player attacks
+      aiCard.currentHp -= playerCard.attack;
+      if (aiCard.currentHp < 0) aiCard.currentHp = 0;
+      document.getElementById("aiHp").textContent = aiCard.currentHp;
+    } else {
+      // AI attacks
+      playerCard.currentHp -= aiCard.attack;
+      if (playerCard.currentHp < 0) playerCard.currentHp = 0;
+      document.getElementById("playerHp").textContent = playerCard.currentHp;
+    }
 
-function resetGame() {
-  battleResult.classList.add("hidden");
-  startBtn.style.display = "block";
+    // Check for winner
+    if (playerCard.currentHp <= 0 || aiCard.currentHp <= 0) {
+      clearInterval(interval);
+      if (playerCard.currentHp <= 0 && aiCard.currentHp <= 0) {
+        resultText.textContent = "It's a draw!";
+      } else if (playerCard.currentHp <= 0) {
+        resultText.textContent = "You lose!";
+      } else {
+        resultText.textContent = "You win!";
+      }
+    }
+
+    turn++;
+  }, 1000); // 1 second delay between turns
 }
