@@ -1,1 +1,91 @@
+const pokemonCards = [
+  {
+    name: "Pikachu",
+    hp: 35,
+    attack: 55,
+    defense: 30,
+    img: "https://img.pokemondb.net/artwork/pikachu.jpg"
+  },
+  {
+    name: "Charmander",
+    hp: 39,
+    attack: 52,
+    defense: 43,
+    img: "https://img.pokemondb.net/artwork/charmander.jpg"
+  },
+  {
+    name: "Squirtle",
+    hp: 44,
+    attack: 48,
+    defense: 65,
+    img: "https://img.pokemondb.net/artwork/squirtle.jpg"
+  }
+];
 
+const startBtn = document.getElementById("startBtn");
+const cardSelection = document.getElementById("cardSelection");
+const playerCards = document.getElementById("playerCards");
+const battleResult = document.getElementById("battleResult");
+const battleCards = document.getElementById("battleCards");
+const resultText = document.getElementById("resultText");
+
+startBtn.onclick = () => {
+  startBtn.style.display = "none";
+  cardSelection.classList.remove("hidden");
+  displayCards();
+};
+
+function displayCards() {
+  playerCards.innerHTML = "";
+  pokemonCards.forEach((card, index) => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <h3>${card.name}</h3>
+      <img src="${card.img}" width="100" />
+      <p>HP: ${card.hp}</p>
+      <p>Attack: ${card.attack}</p>
+      <p>Defense: ${card.defense}</p>
+    `;
+    div.onclick = () => playBattle(index);
+    playerCards.appendChild(div);
+  });
+}
+
+function playBattle(playerIndex) {
+  const playerCard = pokemonCards[playerIndex];
+  const aiIndex = Math.floor(Math.random() * pokemonCards.length);
+  const aiCard = pokemonCards[aiIndex];
+
+  cardSelection.classList.add("hidden");
+  battleResult.classList.remove("hidden");
+
+  battleCards.innerHTML = `
+    <div class="card">
+      <h3>You</h3>
+      <img src="${playerCard.img}" width="100" />
+      <p>${playerCard.name}</p>
+    </div>
+    <div class="card">
+      <h3>AI</h3>
+      <img src="${aiCard.img}" width="100" />
+      <p>${aiCard.name}</p>
+    </div>
+  `;
+
+  const playerScore = playerCard.attack + playerCard.defense;
+  const aiScore = aiCard.attack + aiCard.defense;
+
+  if (playerScore > aiScore) {
+    resultText.textContent = "You win!";
+  } else if (playerScore < aiScore) {
+    resultText.textContent = "You lose!";
+  } else {
+    resultText.textContent = "It's a draw!";
+  }
+}
+
+function resetGame() {
+  battleResult.classList.add("hidden");
+  startBtn.style.display = "block";
+}
