@@ -13,7 +13,7 @@
       <div class="home-body">
         <header class="topbar">
           <div></div>
-          <h1></h1>
+          <h1 class="dimensional-title">Troublesome Dimensions</h1>
           <div class="coins">🪙 <span id="coinsHome">0</span></div>
         </header>
 
