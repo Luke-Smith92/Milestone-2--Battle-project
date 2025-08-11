@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pokémon Card Battle</title>
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -16,12 +15,22 @@
       <div id="playerCards" class="card-container"></div>
     </div>
 
-    <div id="battleResult" class="hidden">
-      <h2>Battle Result</h2>
-      <div id="battleCards"></div>
-      <p id="resultText"></p>
-      <button onclick="resetGame()">Play Again</button>
-    </div>
+  <div id="battleResult" class="hidden">
+  <button id="storeBtn" class="store-button">Visit Store</button>
+  <h2>Battle Arena</h2>
+  <div class="battle-zone">
+    <div id="playerZone" class="card-battle"></div>
+    <div id="aiZone" class="card-battle"></div>
+  </div>
+  <p id="resultText"></p>
+  <button onclick="resetGame()">Play Again</button>
+</div>
+
+    <div id="store" class="hidden">
+  <h2>Card Store</h2>
+  <div id="storeCards" class="card-container"></div>
+</div>
+
   </div>
 
   <script src="script.js"></script>
