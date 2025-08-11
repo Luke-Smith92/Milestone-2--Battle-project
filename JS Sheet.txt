@@ -1,169 +1,227 @@
-c// --- your existing data & variables ---
+/* ------------ Data ------------- */
+const CARDS = [
+  { id:"shadow-elf", name:"Shadow Elf", type:"Dark", img:"images/shadow-elf.png", maxHp:110,
+    attacks:[ {name:"Shadow Dagger",power:18,accuracy:.95}, {name:"Night Veil",power:28,accuracy:.8} ] },
+  { id:"ember-drake", name:"Ember Drake", type:"Fire", img:"images/ember-drake.png", maxHp:120,
+    attacks:[ {name:"Flame Bite",power:20,accuracy:.9}, {name:"Inferno Burst",power:32,accuracy:.7} ] },
+  { id:"frost-guardian", name:"Frost Guardian", type:"Ice", img:"images/frost-guardian.png", maxHp:130,
+    attacks:[ {name:"Ice Lance",power:16,accuracy:.95}, {name:"Blizzard Wall",power:24,accuracy:.85} ] },
+  { id:"storm-witch", name:"Storm Witch", type:"Lightning", img:"images/storm-witch.png", maxHp:95,
+    attacks:[ {name:"Chain Spark",power:22,accuracy:.9}, {name:"Tempest",power:35,accuracy:.65} ] },
+  { id:"oak-sentinel", name:"Oak Sentinel", type:"Earth", img:"images/oak-sentinel.png", maxHp:140,
+    attacks:[ {name:"Root Slam",power:18,accuracy:.95}, {name:"Stone Quake",power:26,accuracy:.8} ] },
+  { id:"tide-singer", name:"Tide Singer", type:"Water", img:"images/tide-singer.png", maxHp:105,
+    attacks:[ {name:"Wave Slash",power:20,accuracy:.9}, {name:"Maelstrom",power:30,accuracy:.75} ] },
+];
 
-let playerCard, aiCard;
-let playerHp, aiHp;
-let interval;
-let isPaused = false;
+const PACKS = [
+  { id:"demo", name:"Demo Pack", price:0,   cards:["shadow-elf","ember-drake"] },
+  { id:"dark-elves", name:"Dark Elves Pack", price:200, cards:["shadow-elf","storm-witch"] },
+  { id:"dragons", name:"Dragons Pack", price:300, cards:["ember-drake"] },
+  { id:"guardians", name:"Guardians Pack", price:250, cards:["oak-sentinel","frost-guardian"] },
+];
 
-// --- existing DOM refs ---
-const startBtn = document.getElementById("startBtn");
-const cardSelection = document.getElementById("cardSelection");
-const playerCardsDiv = document.getElementById("playerCards");
-const battleResult = document.getElementById("battleResult");
-const resultText = document.getElementById("resultText");
-const playerZone = document.getElementById("playerZone");
-const aiZone = document.getElementById("aiZone");
+const NEWS = [
+  { title:"Dark Elves Return to Moonwood",
+    blurb:"Shadow operatives spotted near the northern glade. Scouts report new stealth runes woven into their gear." },
+  { title:"Dragon Keepers Issue Heat Warning",
+    blurb:"Ember Drakes run hot this season. Arena wards reinforced—handlers advise flame-resistant cloaks." },
+  { title:"Storm Witch Verdict Split",
+    blurb:"Council debates whether Tempest should be limited in ranked play. Decision postponed pending trials." }
+];
 
-// NEW: store controls
-const storeDiv = document.getElementById("store");
-const storeCardsDiv = document.getElementById("storeCards");
-const storeBtn = document.getElementById("storeBtn");           // top-right in battle
-const backToBattleBtn = document.getElementById("backToBattleBtn");
+/* --------- State + helpers --------- */
+const views = ["home","select","battle","store"];
+const $ = id => document.getElementById(id);
+const coinEls = [ $("coinsHome"), $("coinsSelect"), $("coinsBattle"), $("coinsStore") ];
 
-startBtn.onclick = () => {
-  startBtn.style.display = "none";
-  storeDiv.classList.add("hidden");      // ensure store not visible
-  cardSelection.classList.remove("hidden");
-  displayCards();
-};
+let save = loadSave();
+function loadSave(){
+  const s = JSON.parse(localStorage.getItem("aca-save")||"null");
+  if (s && s.version===1) return s;
+  const fresh = { version:1, coins:300, ownedPacks:["demo"] };
+  localStorage.setItem("aca-save", JSON.stringify(fresh));
+  return fresh;
+}
+function persist(){ localStorage.setItem("aca-save", JSON.stringify(save)); }
+function ownedCardIds(){
+  const set = new Set();
+  save.ownedPacks.forEach(pid=>{
+    const p = PACKS.find(x=>x.id===pid);
+    if (p) p.cards.forEach(c=>set.add(c));
+  });
+  return [...set];
+}
+function getCard(id){ return CARDS.find(c=>c.id===id); }
+function updateCoinsUI(){ coinEls.forEach(el=>el && (el.textContent = save.coins)); }
 
-// Visit Store (from battle)
-storeBtn.onclick = () => {
-  pauseBattle();                         // pause the fight
-  battleResult.classList.add("hidden");
-  storeDiv.classList.remove("hidden");
-  openStore();
-};
+/* --------- Router --------- */
+function show(id){
+  views.forEach(v=>$(v).classList.add("hidden"));
+  $(id).classList.remove("hidden");
+  document.body.classList.remove("main-bg","arena-bg","store-bg");
+  if (id==="home") document.body.classList.add("main-bg");
+  if (id==="battle") document.body.classList.add("arena-bg");
+  if (id==="store") document.body.classList.add("store-bg");
+  updateCoinsUI();
+}
 
-// Back to battle (from store)
-backToBattleBtn.onclick = () => {
-  storeDiv.classList.add("hidden");
-  battleResult.classList.remove("hidden");
-  resumeBattle();
-};
+/* --------- Home + News --------- */
+function renderNews(){
+  const wrap = $("newsGrid");
+  wrap.innerHTML = "";
+  NEWS.forEach(n=>{
+    const card=document.createElement("article");
+    card.className="news-card";
+    card.tabIndex=0;
+    card.innerHTML=`<h4>${n.title}</h4><div class="tooltip">${n.blurb}</div>`;
+    wrap.appendChild(card);
+  });
 
-function displayCards() {
-  playerCardsDiv.innerHTML = "";
-  pokemonCards.forEach((card, index) => {
+  // Touch toggle
+  if ('ontouchstart' in window) {
+    wrap.querySelectorAll('.news-card').forEach(card=>{
+      card.addEventListener('click', ()=>{
+        wrap.querySelectorAll('.news-card.open').forEach(c=>c!==card && c.classList.remove('open'));
+        card.classList.toggle('open');
+      });
+    });
+    document.addEventListener('click', e=>{
+      if (!wrap.contains(e.target)) wrap.querySelectorAll('.news-card.open').forEach(c=>c.classList.remove('open'));
+    });
+  }
+}
+$("homeBattleBtn").onclick = ()=>{ renderSelect(); show("select"); };
+$("homeStoreBtn").onclick  = ()=>{ renderStore(); show("store"); };
+
+/* --------- Select --------- */
+$("selectBackBtn").onclick = ()=> show("home");
+
+function renderSelect(){
+  const grid = $("selectGrid");
+  grid.innerHTML="";
+  const ids = ownedCardIds();
+  const visible = [...new Set([...ids, ...CARDS.map(c=>c.id)])].slice(0,6);
+
+  visible.forEach(id=>{
+    const card = getCard(id);
+    const owned = ids.includes(id);
     const div = document.createElement("div");
-    div.className = "card";
+    div.className="card";
     div.innerHTML = `
-      <h3>${card.name}</h3>
-      <img src="${card.img}" width="100" />
-      <p>HP: ${card.hp}</p>
-      <p>Attack: ${card.attack}</p>
+      <h4>${card.name}</h4>
+      <img src="${card.img}" alt="${card.name}">
+      <div class="muted">${card.type} • HP ${card.maxHp}</div>
+      <button class="btn ${owned?'primary':''}" ${owned?'':'disabled'}>${owned?'Select':'Locked'}</button>
     `;
-    div.onclick = () => startBattle(index);
-    playerCardsDiv.appendChild(div);
+    div.querySelector("button").onclick = ()=> owned && startBattle(card.id);
+    grid.appendChild(div);
   });
 }
 
-function startBattle(playerIndex) {
-  playerCard = { ...pokemonCards[playerIndex] };
-  const aiIndex = Math.floor(Math.random() * pokemonCards.length);
-  aiCard = { ...pokemonCards[aiIndex] };
-  playerHp = playerCard.hp;
-  aiHp = aiCard.hp;
+/* --------- Battle (multi-attack) --------- */
+$("battleHomeBtn").onclick  = ()=> show("home");
+$("battleAgainBtn").onclick = ()=> show("select");
+$("battleStoreBtn").onclick = ()=> { renderStore(); show("store"); };
 
-  cardSelection.classList.add("hidden");
-  battleResult.classList.remove("hidden");
+let battle = null; // {player, ai, pHp, aHp, locked}
 
-  setBattleBackground();                 // << call the dynamic background
-  renderBattleCards();
+function startBattle(playerId){
+  const player = JSON.parse(JSON.stringify(getCard(playerId)));
+  const aiPool = CARDS.filter(c=>c.id!==playerId);
+  const ai = JSON.parse(JSON.stringify(aiPool[Math.floor(Math.random()*aiPool.length)]));
+  battle = { player, ai, pHp:player.maxHp, aHp:ai.maxHp, locked:false };
+  renderBattle();
+  show("battle");
+}
+
+function renderBattle(){
+  const {player, ai} = battle;
+  $("playerZone").innerHTML = cardBattleHtml("You", player, "playerHp");
+  $("aiZone").innerHTML     = cardBattleHtml("AI",  ai,     "aiHp");
   updateHpBars();
-  startTurnLoop();
+  const row = $("attackRow"); row.innerHTML="";
+  player.attacks.forEach((atk,i)=>{
+    const b=document.createElement("button");
+    b.className="btn";
+    b.textContent=`${atk.name} (${atk.power})`;
+    b.onclick = ()=> playerTurn(i);
+    row.appendChild(b);
+  });
+  $("resultText").textContent="";
 }
-
-function renderBattleCards() {
-  playerZone.innerHTML = `
+function cardBattleHtml(label, card, hpId){
+  return `
     <div class="card">
-      <h3>You</h3>
-      <img src="${playerCard.img}" width="100" />
-      <p>${playerCard.name}</p>
-      <div class="hp-bar"><div id="playerHpBar" class="hp-fill"></div></div>
+      <h4>${label}</h4>
+      <img src="${card.img}" alt="${card.name}">
+      <div>${card.name}</div>
+      <div class="hp-bar"><div id="${hpId}" class="hp-fill"></div></div>
     </div>
   `;
-  aiZone.innerHTML = `
-    <div class="card">
-      <h3>AI</h3>
-      <img src="${aiCard.img}" width="100" />
-      <p>${aiCard.name}</p>
-      <div class="hp-bar"><div id="aiHpBar" class="hp-fill"></div></div>
-    </div>
-  `;
+}
+function updateHpBars(){
+  $("playerHp").style.width = `${(battle.pHp / battle.player.maxHp)*100}%`;
+  $("aiHp").style.width     = `${(battle.aHp / battle.ai.maxHp)*100}%`;
+}
+function playerTurn(i){
+  if (battle.locked) return;
+  battle.locked = true;
+  const atk=battle.player.attacks[i];
+  if (Math.random()<=atk.accuracy) battle.aHp=Math.max(0,battle.aHp-atk.power);
+  updateHpBars();
+  if (checkEnd()) return;
+  setTimeout(aiTurn, 700);
+}
+function aiTurn(){
+  const atk=battle.ai.attacks[Math.floor(Math.random()*battle.ai.attacks.length)];
+  if (Math.random()<=atk.accuracy) battle.pHp=Math.max(0,battle.pHp-atk.power);
+  updateHpBars();
+  if (checkEnd()) return;
+  battle.locked=false;
+}
+function checkEnd(){
+  if (battle.pHp<=0 || battle.aHp<=0){
+    $("resultText").textContent =
+      (battle.pHp<=0 && battle.aHp<=0) ? "It's a draw!" :
+      (battle.pHp<=0) ? "You lose!" : "You win!";
+    return true;
+  }
+  return false;
 }
 
-function updateHpBars() {
-  document.getElementById("playerHpBar").style.width = `${(playerHp / playerCard.hp) * 100}%`;
-  document.getElementById("aiHpBar").style.width = `${(aiHp / aiCard.hp) * 100}%`;
-}
+/* --------- Store --------- */
+$("storeBackBtn").onclick = ()=> show("home");
 
-function startTurnLoop() {
-  let turn = 1;
-  isPaused = false;
-
-  clearInterval(interval);
-  interval = setInterval(() => {
-    if (isPaused) return; // do nothing while paused
-
-    if (turn % 2 === 1) {
-      aiHp -= playerCard.attack;
-      if (aiHp < 0) aiHp = 0;
-    } else {
-      playerHp -= aiCard.attack;
-      if (playerHp < 0) playerHp = 0;
-    }
-
-    updateHpBars();
-
-    if (playerHp <= 0 || aiHp <= 0) {
-      clearInterval(interval);
-      if (playerHp <= 0 && aiHp <= 0) resultText.textContent = "It's a draw!";
-      else if (playerHp <= 0)         resultText.textContent = "You lose!";
-      else                            resultText.textContent = "You win!";
-    }
-    turn++;
-  }, 1000);
-}
-
-function pauseBattle()  { isPaused = true; }
-function resumeBattle() { isPaused = false; }
-
-function resetGame() {
-  clearInterval(interval);
-  resultText.textContent = "";
-  playerZone.innerHTML = "";
-  aiZone.innerHTML = "";
-  battleResult.classList.add("hidden");
-  storeDiv.classList.add("hidden");
-  startBtn.style.display = "block";
-}
-
-function setBattleBackground() {
-  const backgrounds = [
-    "url('https://wallpaperaccess.com/full/13407.jpg')", // Forest
-    "url('https://wallpaperaccess.com/full/13402.jpg')", // Fire Cave
-    "url('https://wallpaperaccess.com/full/13398.jpg')"  // Water Arena
-  ];
-  const randomBg = backgrounds[Math.floor(Math.random() * backgrounds.length)];
-  document.body.style.backgroundImage = randomBg;
-  document.body.style.backgroundSize = "cover";
-  document.body.style.backgroundPosition = "center";
-}
-
-function openStore() {
-  storeCardsDiv.innerHTML = "";
-  pokemonCards.forEach(card => {
-    const div = document.createElement("div");
-    div.className = "card";
+function renderStore(){
+  const wrap = $("packList");
+  wrap.innerHTML="";
+  PACKS.forEach(p=>{
+    const owned = save.ownedPacks.includes(p.id);
+    const div=document.createElement("div");
+    div.className="pack";
     div.innerHTML = `
-      <h3>${card.name}</h3>
-      <img src="${card.img}" width="100" />
-      <p>HP: ${card.hp}</p>
-      <p>Attack: ${card.attack}</p>
-      <button>Buy</button>
+      <h4>${p.name}</h4>
+      <p class="muted">Contains: ${p.cards.map(id=>getCard(id).name).join(", ")}</p>
+      <p class="price">Price: ${p.price} 🪙</p>
+      <button class="btn ${owned?'':'primary'}" ${owned?'disabled':''}>${owned?'Owned':'Buy'}</button>
     `;
-    div.querySelector("button").onclick = () => alert(`${card.name} purchased!`);
-    storeCardsDiv.appendChild(div);
+    const btn=div.querySelector("button");
+    if (!owned){
+      btn.onclick = ()=>{
+        if (save.coins < p.price) { alert("Not enough coins!"); return; }
+        save.coins -= p.price;
+        save.ownedPacks.push(p.id);
+        persist(); updateCoinsUI(); renderStore();
+      };
+    }
+    wrap.appendChild(div);
   });
 }
+
+/* --------- Init --------- */
+document.addEventListener('DOMContentLoaded', ()=>{
+  updateCoinsUI();
+  renderNews();
+  show("home");
+});
