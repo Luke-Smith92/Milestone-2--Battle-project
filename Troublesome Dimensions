@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Troublesome Dimensions</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="main-bg">
+  <div class="container">
+
+    <!-- HOME -->
+    <section id="home" class="view">
+      <div class="home-body">
+        <header class="topbar">
+          <div></div>
+          <h1></h1>
+          <div class="coins">🪙 <span id="coinsHome">0</span></div>
+        </header>
+
+        <div class="cta-row">
+          <button id="homeBattleBtn" class="btn primary">Battle Now</button>
+          <button id="homeStoreBtn" class="btn">Visit Store</button>
+        </div>
+
+        <!-- News near the bottom -->
+        <h3 class="home-news-title">News</h3>
+        <div id="newsGrid" class="news"></div>
+      </div>
+    </section>
+
+    <!-- SELECT -->
+    <section id="select" class="view hidden">
+      <header class="topbar">
+        <div></div>
+        <h2>Select Your Champion</h2>
+        <div class="coins">🪙 <span id="coinsSelect">0</span></div>
+      </header>
+
+      <div id="selectGrid" class="card-grid"></div>
+
+      <div class="cta-row">
+        <button id="selectBackBtn" class="btn">Back</button>
+      </div>
+    </section>
+
+    <!-- BATTLE -->
+    <section id="battle" class="view hidden arena-bg">
+      <header class="topbar">
+        <div></div>
+        <h2>Arena</h2>
+        <div class="coins">🪙 <span id="coinsBattle">0</span></div>
+      </header>
+
+      <div class="battle-zone">
+        <div id="playerZone" class="card-battle"></div>
+        <div id="aiZone" class="card-battle"></div>
+      </div>
+
+      <div id="attackRow" class="attack-row"></div>
+
+      <p id="resultText" class="result"></p>
+
+      <div class="cta-row">
+        <button id="battleAgainBtn" class="btn">Back to Select</button>
+        <button id="battleHomeBtn" class="btn">Home</button>
+        <button id="battleStoreBtn" class="btn small">Visit Store</button>
+      </div>
+    </section>
+
+    <!-- STORE -->
+    <section id="store" class="view hidden store-bg">
+      <header class="topbar">
+        <div></div>
+        <h2>Card Store</h2>
+        <div class="coins">🪙 <span id="coinsStore">0</span></div>
+      </header>
+
+      <div id="packList" class="pack-grid"></div>
+
+      <div class="cta-row">
+        <button id="storeBackBtn" class="btn">Back</button>
+      </div>
+    </section>
+
+  </div>
+  <script src="script.js" defer></script>
+</body>
+</html>
