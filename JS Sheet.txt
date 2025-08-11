@@ -1,13 +1,11 @@
-const pokemonCards = [
-  { name: "Pikachu", hp: 100, attack: 25, img: "https://img.pokemondb.net/artwork/pikachu.jpg" },
-  { name: "Charmander", hp: 100, attack: 20, img: "https://img.pokemondb.net/artwork/charmander.jpg" },
-  { name: "Squirtle", hp: 100, attack: 15, img: "https://img.pokemondb.net/artwork/squirtle.jpg" }
-];
+c// --- your existing data & variables ---
 
 let playerCard, aiCard;
 let playerHp, aiHp;
 let interval;
+let isPaused = false;
 
+// --- existing DOM refs ---
 const startBtn = document.getElementById("startBtn");
 const cardSelection = document.getElementById("cardSelection");
 const playerCardsDiv = document.getElementById("playerCards");
@@ -16,10 +14,32 @@ const resultText = document.getElementById("resultText");
 const playerZone = document.getElementById("playerZone");
 const aiZone = document.getElementById("aiZone");
 
+// NEW: store controls
+const storeDiv = document.getElementById("store");
+const storeCardsDiv = document.getElementById("storeCards");
+const storeBtn = document.getElementById("storeBtn");           // top-right in battle
+const backToBattleBtn = document.getElementById("backToBattleBtn");
+
 startBtn.onclick = () => {
   startBtn.style.display = "none";
+  storeDiv.classList.add("hidden");      // ensure store not visible
   cardSelection.classList.remove("hidden");
   displayCards();
+};
+
+// Visit Store (from battle)
+storeBtn.onclick = () => {
+  pauseBattle();                         // pause the fight
+  battleResult.classList.add("hidden");
+  storeDiv.classList.remove("hidden");
+  openStore();
+};
+
+// Back to battle (from store)
+backToBattleBtn.onclick = () => {
+  storeDiv.classList.add("hidden");
+  battleResult.classList.remove("hidden");
+  resumeBattle();
 };
 
 function displayCards() {
@@ -48,6 +68,7 @@ function startBattle(playerIndex) {
   cardSelection.classList.add("hidden");
   battleResult.classList.remove("hidden");
 
+  setBattleBackground();                 // << call the dynamic background
   renderBattleCards();
   updateHpBars();
   startTurnLoop();
@@ -79,7 +100,12 @@ function updateHpBars() {
 
 function startTurnLoop() {
   let turn = 1;
+  isPaused = false;
+
+  clearInterval(interval);
   interval = setInterval(() => {
+    if (isPaused) return; // do nothing while paused
+
     if (turn % 2 === 1) {
       aiHp -= playerCard.attack;
       if (aiHp < 0) aiHp = 0;
@@ -92,17 +118,16 @@ function startTurnLoop() {
 
     if (playerHp <= 0 || aiHp <= 0) {
       clearInterval(interval);
-      if (playerHp <= 0 && aiHp <= 0) {
-        resultText.textContent = "It's a draw!";
-      } else if (playerHp <= 0) {
-        resultText.textContent = "You lose!";
-      } else {
-        resultText.textContent = "You win!";
-      }
+      if (playerHp <= 0 && aiHp <= 0) resultText.textContent = "It's a draw!";
+      else if (playerHp <= 0)         resultText.textContent = "You lose!";
+      else                            resultText.textContent = "You win!";
     }
     turn++;
   }, 1000);
 }
+
+function pauseBattle()  { isPaused = true; }
+function resumeBattle() { isPaused = false; }
 
 function resetGame() {
   clearInterval(interval);
@@ -110,8 +135,10 @@ function resetGame() {
   playerZone.innerHTML = "";
   aiZone.innerHTML = "";
   battleResult.classList.add("hidden");
+  storeDiv.classList.add("hidden");
   startBtn.style.display = "block";
 }
+
 function setBattleBackground() {
   const backgrounds = [
     "url('https://wallpaperaccess.com/full/13407.jpg')", // Forest
@@ -123,11 +150,8 @@ function setBattleBackground() {
   document.body.style.backgroundSize = "cover";
   document.body.style.backgroundPosition = "center";
 }
-const storeDiv = document.getElementById("store");
-const storeCardsDiv = document.getElementById("storeCards");
 
 function openStore() {
-  storeDiv.classList.remove("hidden");
   storeCardsDiv.innerHTML = "";
   pokemonCards.forEach(card => {
     const div = document.createElement("div");
@@ -143,4 +167,3 @@ function openStore() {
     storeCardsDiv.appendChild(div);
   });
 }
-storeDiv.classList.add("hidden");
