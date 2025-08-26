@@ -1,143 +1,184 @@
 /* Base + layout */
 * { box-sizing: border-box; }
-body { margin: 0; font-family: Arial, sans-serif; }
-.container { max-width: 1100px; margin: 0 auto; padding: 18px; }
+html, body { height: 100%; margin:0; }
+body {
+  font-family: Arial, sans-serif;
+  color: #fff;
+  background: url('images/background-image.jpg') center/cover no-repeat fixed;
+}
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 18px;
+}
 .hidden { display: none !important; }
 
-/* Backgrounds per view */
-body.main-bg  { background: #0b0f14 url('images/bg-main.jpg') center/cover fixed no-repeat; }
-body.arena-bg { background: #0b0f14 url('images/bg-arena.jpg') center/cover fixed no-repeat; }
-body.store-bg { background: #0b0f14 url('images/bg-store.jpg') center/cover fixed no-repeat; }
-
-/* Top bar centered title, coins on right */
-.topbar {
+/* NAVIGATION BAR */
+.main-nav {
   display: grid;
-  grid-template-columns: 1fr auto 1fr; /* spacer | title | coins */
+  grid-template-columns: 1fr auto 1fr; /* left / center / right */
   align-items: center;
+  padding: 12px 20px;
+  background: rgba(0,0,0,.55);
+  border-bottom: 2px solid rgba(255,255,255,.1);
+  position: sticky; top:0; z-index:50;
 }
-.topbar h1, .topbar h2 { margin: 8px 0; justify-self: center; }
-.topbar .coins { justify-self: end; font-weight: 700; }
-
-/* Buttons */
-.btn { padding: 10px 16px; border: 0; border-radius: 10px; cursor: pointer; background: #eee; font-weight: 600; }
-.btn:hover { filter: brightness(0.95); }
-.btn.primary { background: #ffcb05; color: #2a75bb; }
-.btn.small { padding: 8px 12px; font-size: 0.95rem; }
-.cta-row { display: flex; gap: 12px; justify-content: center; margin-top: 18px; }
-
-/* Home view & hover news */
-
-.dimensional-title {
-  font-family: 'Trebuchet MS', sans-serif;
-  font-size: 3rem;
+.main-nav h1 {
+  margin:0;
+  font-size: 2.6rem;   /* bigger title */
+  text-align: center;
+  justify-self: center;
+}
+.main-nav h1 a {
+  text-decoration:none;
   background: linear-gradient(90deg, #8e2de2, #4a00e0, #00f5a0, #8e2de2);
   background-size: 300% 300%;
-  background-clip: text; /* <-- Added standard property */
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: dimensionShift 8s ease infinite;
-  text-shadow: 0 0 10px rgba(142, 45, 226, 0.6),
-               0 0 20px rgba(0, 245, 160, 0.5),
-               0 0 30px rgba(74, 0, 224, 0.4);
+  font-weight: 800;
 }
-
-
 @keyframes dimensionShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+.nav-links {
+  display:flex;
+  gap:16px;
+  justify-self:end;
+  align-items:center;
+}
+.nav-link {
+  text-decoration:none;
+  padding:6px 12px;
+  border-radius:8px;
+  color:#fff;
+  font-weight:600;
+  transition: background .2s ease;
+}
+.nav-link:hover { background: rgba(255,255,255,.2); }
+.main-nav .coins {
+  margin-left:12px;
+  font-weight:bold;
 }
 
-
-.home-body {
-  min-height: calc(100vh - 80px);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.home-news-title { margin-top: auto; }
-
-.news {
+/* Topbar used inside views (select/store/battle headers) */
+.topbar {
   display: grid;
-  grid-template-columns: repeat(3,1fr);
-  gap: 14px;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
 }
-.news-card {
-  position: relative;
-  background: rgba(255,255,255,0.9);
-  padding: 14px;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-  outline: none;
-}
-.news-card h4 { margin: 0; }
+.topbar h1, .topbar h2 { margin:8px 0; justify-self:center; }
+.topbar .coins { justify-self:end; font-weight:700; }
 
-/* Tooltip on hover/focus/touch */
-.news-card .tooltip {
-  position: absolute;
-  left: 50%;
-  bottom: 100%;
-  transform: translate(-50%, -8px);
-  background: rgba(0,0,0,0.85);
-  color: #fff;
-  padding: 10px 12px;
-  width: 260px;
-  border-radius: 8px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .15s ease, transform .15s ease;
-  z-index: 10;
-  text-align: left;
-  font-size: .95rem;
+/* Buttons */
+.btn {
+  padding: 10px 16px;
+  border:0;
+  border-radius:10px;
+  cursor:pointer;
+  background:#eee;
+  color:#111;
+  font-weight:600;
 }
-.news-card .tooltip::after {
-  content: "";
-  position: absolute;
-  left: 50%; transform: translateX(-50%);
-  top: 100%;
-  border: 7px solid transparent;
-  border-top-color: rgba(0,0,0,0.85);
+.btn:hover { filter:brightness(0.95); }
+.btn.primary { background:#ffcb05; color:#2a75bb; }
+.cta-row { display:none; } /* hide old battle/store buttons */
+
+/* ARENA CTA CIRCLE (centered) */
+.cta-circle{
+  --size: 140px;
+  position: fixed;
+  left:50%; top:50%;
+  transform: translate(-50%,-50%);
+  z-index:20;
+  width: var(--size); height: var(--size);
+  border-radius:50%; border:none; cursor:pointer;
+
+  /* soft glowing background */
+  background: radial-gradient(circle at 30% 30%, #e8f7f1, #7fb9a6);
+  animation: ctaShimmer 6s linear infinite;
+  box-shadow: 0 0 25px rgba(0,255,190,.4);
+
+  /* Text like the title */
+  font-size: 1.2rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #8e2de2, #4a00e0, #00f5a0, #8e2de2);
+  background-size: 300% 300%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
-.news-card:hover .tooltip,
-.news-card:focus-within .tooltip,
-.news-card.open .tooltip {
-  opacity: 1;
-  transform: translate(-50%, -12px);
+@keyframes ctaShimmer {
+  0%{filter:brightness(1)}
+  50%{filter:brightness(1.3)}
+  100%{filter:brightness(1)}
 }
 
-/* Select grid & cards */
-.card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
-.card {
-  background: white;
-  border-radius: 14px;
-  padding: 12px;
+/* Layout for hero + news */
+#home { flex: 1 0 auto; }
+#portal-section { height: clamp(360px, 62vh, 720px); }
+
+/* BREAKING NEWS (footer) */
+#news-section {
+  margin-top: auto;
+  padding: 40px 0;
+  background: rgba(0,0,0,.65);
+}
+.news-header {
+  font-size: 2rem;
   text-align: center;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.15);
+  margin-bottom: 20px;
+  color: #ffcb05;
+  text-shadow: 0 0 8px rgba(255,255,0,.7),
+               0 0 14px rgba(0,255,255,.6);
+  animation: flicker 2s infinite;
 }
-.card img { width: 110px; height: 110px; object-fit: contain; display:block; margin: 6px auto 8px; }
-.card .muted { color: #666; font-size: 0.9rem; }
-.card .btn { margin-top: 8px; width: 100%; }
-
-/* Store packs */
-.pack-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
-.pack { background: white; padding: 14px; border-radius: 14px; box-shadow: 0 10px 24px rgba(0,0,0,0.15); }
-.pack h4 { margin: 6px 0 10px; }
-.pack .price { color: #0a7; font-weight: 700; }
-
-/* Battle view */
-.battle-zone { display: flex; justify-content: center; align-items: flex-start; gap: 50px; margin: 20px 0 10px; }
-.card-battle .card { width: 220px; }
-.hp-bar { width: 140px; height: 12px; background: #ddd; border-radius: 6px; overflow: hidden; margin: 6px auto 0; }
-.hp-fill { height: 100%; width: 100%; background: #27c24c; transition: width 200ms linear; }
-.attack-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-.result { text-align: center; font-weight: 700; margin: 10px 0; }
-
-/* Responsive */
-@media (max-width: 900px) {
-  .news { grid-template-columns: 1fr; }
-  .card-grid, .pack-grid { grid-template-columns: repeat(2, 1fr); }
+@keyframes flicker {
+  0%,100%{opacity:1}
+  45%{opacity:.9}
+  50%{opacity:.5}
+  55%{opacity:.9}
 }
-@media (max-width: 600px) {
-  .card-grid, .pack-grid { grid-template-columns: 1fr; }
-  .battle-zone { gap: 20px; }
+
+#news-container{
+  max-width:980px;
+  margin:0 auto;
+  display:flex;
+  justify-content:center;
+  gap:20px;
+  flex-wrap:wrap;
 }
+.news-article {
+  width: 300px;
+  height: 170px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  color: #111;
+  border-radius: 12px;
+  background: url('images/parchment.jpg') center/cover no-repeat;
+  box-shadow: 0 8px 20px rgba(0,0,0,.25);
+  transition: transform .25s ease, opacity .35s ease;
+}
+.news-article:hover{ transform: scale(1.03); }
+.news-article h3{
+  margin:0 0 6px;
+  text-shadow: 0 1px 0 rgba(255,255,255,.6);
+}
+.news-article .teaser{ font-style: italic; opacity:.85; }
+.news-article .full-text{
+  position: absolute;
+  left:16px; right:16px; bottom:12px;
+  margin:0;
+  opacity:0;
+  transition: opacity .25s ease;
+}
+.news-article:hover .full-text{ opacity:1; }
+
+
