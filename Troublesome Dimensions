@@ -2,87 +2,115 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Troublesome Dimensions</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body class="main-bg">
+<body>
   <div class="container">
+
+    <!-- NAVIGATION -->
+    <nav class="main-nav" aria-label="Primary">
+  <div></div> <!-- left side empty for balance -->
+  <h1 class="dimensional-title">
+    <a href="#" data-view="home" id="titleHome">Troublesome Dimensions</a>
+  </h1>
+  <div class="nav-links">
+    <a href="#" data-view="select" class="nav-link">My Cards</a>
+    <a href="#" data-view="battle" class="nav-link">Arena</a>
+    <a href="#" data-view="store" class="nav-link">Store</a>
+    <a href="#" data-view="login" class="nav-link">Login</a>
+    <div class="coins">🪙 <span id="coinsHome">0</span></div>
+  </div>
+</nav>
+
 
     <!-- HOME -->
     <section id="home" class="view">
-      <div class="home-body">
-        <header class="topbar">
-          <div></div>
-          <h1 class="dimensional-title">Troublesome Dimensions</h1>
-          <div class="coins">🪙 <span id="coinsHome">0</span></div>
-        </header>
-
-        <div class="cta-row">
-          <button id="homeBattleBtn" class="btn primary">Battle Now</button>
-          <button id="homeStoreBtn" class="btn">Visit Store</button>
-        </div>
-
-        <!-- News near the bottom -->
-        <h3 class="home-news-title">News</h3>
-        <div id="newsGrid" class="news"></div>
+      <div id="portal-section">
+        <button id="shimmerCta" class="cta-circle" aria-label="Enter the Arena">Enter</button>
       </div>
     </section>
 
-    <!-- SELECT -->
+    <!-- SELECT VIEW -->
     <section id="select" class="view hidden">
       <header class="topbar">
-        <div></div>
-        <h2>Select Your Champion</h2>
+        <button id="selectBackBtn" class="btn">⟵ Back</button>
+        <h2>My Cards</h2>
         <div class="coins">🪙 <span id="coinsSelect">0</span></div>
       </header>
-
-      <div id="selectGrid" class="card-grid"></div>
-
-      <div class="cta-row">
-        <button id="selectBackBtn" class="btn">Back</button>
-      </div>
+      <div id="selectGrid" class="grid" aria-live="polite"></div>
     </section>
 
-    <!-- BATTLE -->
-    <section id="battle" class="view hidden arena-bg">
+    <!-- BATTLE VIEW -->
+    <section id="battle" class="view hidden">
       <header class="topbar">
-        <div></div>
+        <button id="battleHomeBtn" class="btn">⟵ Home</button>
         <h2>Arena</h2>
         <div class="coins">🪙 <span id="coinsBattle">0</span></div>
       </header>
-
-      <div class="battle-zone">
-        <div id="playerZone" class="card-battle"></div>
-        <div id="aiZone" class="card-battle"></div>
+      <div class="grid">
+        <div id="playerZone" class="card" aria-live="polite"></div>
+        <div id="aiZone" class="card" aria-live="polite"></div>
       </div>
-
-      <div id="attackRow" class="attack-row"></div>
-
-      <p id="resultText" class="result"></p>
-
-      <div class="cta-row">
-        <button id="battleAgainBtn" class="btn">Back to Select</button>
-        <button id="battleHomeBtn" class="btn">Home</button>
-        <button id="battleStoreBtn" class="btn small">Visit Store</button>
+      <div class="spacer"></div>
+      <div id="attackRow" class="row"></div>
+      <p id="resultText" style="text-align:center;font-weight:700;margin-top:10px;"></p>
+      <div class="row">
+        <button id="battleAgainBtn" class="btn">Choose Another</button>
+        <button id="battleStoreBtn" class="btn primary">Visit Store</button>
       </div>
     </section>
 
-    <!-- STORE -->
-    <section id="store" class="view hidden store-bg">
+    <!-- STORE VIEW -->
+    <section id="store" class="view hidden">
       <header class="topbar">
-        <div></div>
-        <h2>Card Store</h2>
+        <button id="storeBackBtn" class="btn">⟵ Back</button>
+        <h2>Arcane Emporium</h2>
         <div class="coins">🪙 <span id="coinsStore">0</span></div>
       </header>
-
-      <div id="packList" class="pack-grid"></div>
-
-      <div class="cta-row">
-        <button id="storeBackBtn" class="btn">Back</button>
-      </div>
+      <div id="packList" class="grid"></div>
     </section>
 
+    <!-- LOGIN VIEW -->
+    <section id="login" class="view hidden">
+      <header class="topbar">
+        <button id="loginBackBtn" class="btn">⟵ Back</button>
+        <h2>Login / Sign Up</h2>
+      </header>
+      <form id="loginForm" class="login-form">
+        <input type="text" placeholder="Username" required />
+        <input type="password" placeholder="Password" required />
+        <button class="btn primary">Login</button>
+        <p>No account? <a href="#">Sign up</a></p>
+      </form>
+    </section>
+
+    <!-- NEWS (FOOTER STYLE) -->
+    <footer id="news-section">
+      <h2 class="news-header">Breaking News from the Multiverse</h2>
+      <div id="news-container">
+        <article class="news-article">
+          <h3>Portal Rift Expands</h3>
+          <p class="teaser">The dimensional tear has grown twice its size...</p>
+          <p class="full-text">Scholars fear this may lead to an unstable multiverse collapse. The Guild of Timekeepers is meeting urgently.</p>
+        </article>
+        <article class="news-article">
+          <h3>Dark Elves Spotted</h3>
+          <p class="teaser">Shadowy figures seen near the Black Forest...</p>
+          <p class="full-text">Reports confirm they are armed and possibly preparing for battle. Locals advised to stay indoors.</p>
+        </article>
+        <article class="news-article">
+          <h3>Dragons on the Horizon</h3>
+          <p class="teaser">Fiery shapes fill the sky above Dragon’s Peak...</p>
+          <p class="full-text">The Council has issued a warning and begun evacuations. Hunters say these dragons seem restless and aggressive.</p>
+        </article>
+      </div>
+    </footer>
+
   </div>
-  <script src="script.js" defer></script>
+  <script src="script.js"></script>
 </body>
 </html>
+
+
