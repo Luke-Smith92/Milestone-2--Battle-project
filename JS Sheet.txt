@@ -21,15 +21,6 @@ const PACKS = [
   { id:"guardians", name:"Guardians Pack", price:250, cards:["oak-sentinel","frost-guardian"] },
 ];
 
-const NEWS = [
-  { title:"Dark Elves Return to Moonwood",
-    blurb:"Shadow operatives spotted near the northern glade. Scouts report new stealth runes woven into their gear." },
-  { title:"Dragon Keepers Issue Heat Warning",
-    blurb:"Ember Drakes run hot this season. Arena wards reinforced—handlers advise flame-resistant cloaks." },
-  { title:"Storm Witch Verdict Split",
-    blurb:"Council debates whether Tempest should be limited in ranked play. Decision postponed pending trials." }
-];
-
 /* --------- State + helpers --------- */
 const views = ["home","select","battle","store"];
 const $ = id => document.getElementById(id);
@@ -57,8 +48,8 @@ function updateCoinsUI(){ coinEls.forEach(el=>el && (el.textContent = save.coins
 
 /* --------- Router --------- */
 function show(id){
-  views.forEach(v=>$(v).classList.add("hidden"));
-  $(id).classList.remove("hidden");
+  views.forEach(v=>{ const el=$(v); if (el) el.classList.add("hidden"); });
+  const target=$(id); if (target) target.classList.remove("hidden");
   document.body.classList.remove("main-bg","arena-bg","store-bg");
   if (id==="home") document.body.classList.add("main-bg");
   if (id==="battle") document.body.classList.add("arena-bg");
@@ -66,64 +57,74 @@ function show(id){
   updateCoinsUI();
 }
 
-/* --------- Home + News --------- */
-function renderNews(){
-  const wrap = $("newsGrid");
-  wrap.innerHTML = "";
-  NEWS.forEach(n=>{
-    const card=document.createElement("article");
-    card.className="news-card";
-    card.tabIndex=0;
-    card.innerHTML=`<h4>${n.title}</h4><div class="tooltip">${n.blurb}</div>`;
-    wrap.appendChild(card);
-  });
+/* --------- Home --------- */
+function enterArena(){
+  renderSelect();
+  show('select');
+}
+function setupBreakingNews(){
+  const wrap = $("news-container");
+  const cards = Array.from(wrap.querySelectorAll(".news-article"));
+  const VISIBLE = 3;
+  let index = 0;
+  let timer;
 
-  // Touch toggle
-  if ('ontouchstart' in window) {
-    wrap.querySelectorAll('.news-card').forEach(card=>{
-      card.addEventListener('click', ()=>{
-        wrap.querySelectorAll('.news-card.open').forEach(c=>c!==card && c.classList.remove('open'));
-        card.classList.toggle('open');
-      });
-    });
-    document.addEventListener('click', e=>{
-      if (!wrap.contains(e.target)) wrap.querySelectorAll('.news-card.open').forEach(c=>c.classList.remove('open'));
+  function layout(start=0, instant=false){
+    cards.forEach((card,i)=>{
+      const show = i >= start && i < start + VISIBLE;
+      card.style.display = show ? "block" : "none";
+      if (!instant){
+        card.style.opacity = 0;
+        requestAnimationFrame(()=>{
+          card.style.transition = "opacity .35s ease";
+          card.style.opacity = show ? 1 : 0;
+        });
+      } else {
+        card.style.transition = "none";
+        card.style.opacity = show ? 1 : 0;
+      }
     });
   }
+  function tick(){
+    index = (index + 1) % cards.length;
+    if (index > cards.length - VISIBLE) index = 0;
+    layout(index);
+  }
+  function start(){ stop(); timer = setInterval(tick, 5000); }
+  function stop(){ if (timer) clearInterval(timer); }
+
+  layout(0, true);
+  start();
+  $("news-section").addEventListener("mouseenter", stop);
+  $("news-section").addEventListener("mouseleave", start);
 }
-$("homeBattleBtn").onclick = ()=>{ renderSelect(); show("select"); };
-$("homeStoreBtn").onclick  = ()=>{ renderStore(); show("store"); };
 
 /* --------- Select --------- */
-$("selectBackBtn").onclick = ()=> show("home");
-
 function renderSelect(){
   const grid = $("selectGrid");
-  grid.innerHTML="";
+  grid.innerHTML = "";
   const ids = ownedCardIds();
-  const visible = [...new Set([...ids, ...CARDS.map(c=>c.id)])].slice(0,6);
+  const visible = [...new Set([...ids, ...CARDS.map(c=>c.id)])].slice(0, 6);
 
   visible.forEach(id=>{
     const card = getCard(id);
     const owned = ids.includes(id);
     const div = document.createElement("div");
-    div.className="card";
+    div.className = "card";
     div.innerHTML = `
       <h4>${card.name}</h4>
       <img src="${card.img}" alt="${card.name}">
       <div class="muted">${card.type} • HP ${card.maxHp}</div>
-      <button class="btn ${owned?'primary':''}" ${owned?'':'disabled'}>${owned?'Select':'Locked'}</button>
+      <button class="btn ${owned ? "primary" : ""}" ${owned ? "" : "disabled"}>
+        ${owned ? "Select" : "Locked"}
+      </button>
     `;
-    div.querySelector("button").onclick = ()=> owned && startBattle(card.id);
+    div.querySelector("button").onclick = () => owned && startBattle(card.id);
     grid.appendChild(div);
   });
 }
 
 /* --------- Battle (multi-attack) --------- */
-$("battleHomeBtn").onclick  = ()=> show("home");
-$("battleAgainBtn").onclick = ()=> show("select");
-$("battleStoreBtn").onclick = ()=> { renderStore(); show("store"); };
-
 let battle = null; // {player, ai, pHp, aHp, locked}
 
 function startBattle(playerId){
@@ -140,16 +141,19 @@ function renderBattle(){
   $("playerZone").innerHTML = cardBattleHtml("You", player, "playerHp");
   $("aiZone").innerHTML     = cardBattleHtml("AI",  ai,     "aiHp");
   updateHpBars();
-  const row = $("attackRow"); row.innerHTML="";
+
+  const row = $("attackRow");
+  row.innerHTML = "";
   player.attacks.forEach((atk,i)=>{
-    const b=document.createElement("button");
-    b.className="btn";
-    b.textContent=`${atk.name} (${atk.power})`;
-    b.onclick = ()=> playerTurn(i);
+    const b = document.createElement("button");
+    b.className = "btn";
+    b.textContent = `${atk.name} (${atk.power})`;
+    b.onclick = () => playerTurn(i);
     row.appendChild(b);
   });
-  $("resultText").textContent="";
+  $("resultText").textContent = "";
 }
+
 function cardBattleHtml(label, card, hpId){
   return `
     <div class="card">
@@ -160,53 +164,57 @@ function cardBattleHtml(label, card, hpId){
     </div>
   `;
 }
+
 function updateHpBars(){
-  $("playerHp").style.width = `${(battle.pHp / battle.player.maxHp)*100}%`;
-  $("aiHp").style.width     = `${(battle.aHp / battle.ai.maxHp)*100}%`;
+  $("playerHp").style.width = `${(battle.pHp / battle.player.maxHp) * 100}%`;
+  $("aiHp").style.width     = `${(battle.aHp / battle.ai.maxHp) * 100}%`;
 }
+
 function playerTurn(i){
   if (battle.locked) return;
   battle.locked = true;
-  const atk=battle.player.attacks[i];
-  if (Math.random()<=atk.accuracy) battle.aHp=Math.max(0,battle.aHp-atk.power);
+  const atk = battle.player.attacks[i];
+  if (Math.random() <= atk.accuracy) battle.aHp = Math.max(0, battle.aHp - atk.power);
   updateHpBars();
   if (checkEnd()) return;
   setTimeout(aiTurn, 700);
 }
+
 function aiTurn(){
-  const atk=battle.ai.attacks[Math.floor(Math.random()*battle.ai.attacks.length)];
-  if (Math.random()<=atk.accuracy) battle.pHp=Math.max(0,battle.pHp-atk.power);
+  const atk = battle.ai.attacks[Math.floor(Math.random() * battle.ai.attacks.length)];
+  if (Math.random() <= atk.accuracy) battle.pHp = Math.max(0, battle.pHp - atk.power);
   updateHpBars();
   if (checkEnd()) return;
-  battle.locked=false;
+  battle.locked = false;
 }
+
 function checkEnd(){
-  if (battle.pHp<=0 || battle.aHp<=0){
+  if (battle.pHp <= 0 || battle.aHp <= 0){
     $("resultText").textContent =
-      (battle.pHp<=0 && battle.aHp<=0) ? "It's a draw!" :
-      (battle.pHp<=0) ? "You lose!" : "You win!";
+      (battle.pHp<=0 && battle.aHp<=0) ? "It's a draw!"
+      : (battle.pHp<=0) ? "You lose!" : "You win!";
     return true;
   }
   return false;
 }
 
 /* --------- Store --------- */
-$("storeBackBtn").onclick = ()=> show("home");
-
 function renderStore(){
   const wrap = $("packList");
-  wrap.innerHTML="";
+  wrap.innerHTML = "";
   PACKS.forEach(p=>{
     const owned = save.ownedPacks.includes(p.id);
-    const div=document.createElement("div");
-    div.className="pack";
+    const div = document.createElement("div");
+    div.className = "card";
     div.innerHTML = `
       <h4>${p.name}</h4>
       <p class="muted">Contains: ${p.cards.map(id=>getCard(id).name).join(", ")}</p>
-      <p class="price">Price: ${p.price} 🪙</p>
-      <button class="btn ${owned?'':'primary'}" ${owned?'disabled':''}>${owned?'Owned':'Buy'}</button>
+      <p class="muted">Price: ${p.price} 🪙</p>
+      <button class="btn ${owned ? "" : "primary"}" ${owned ? "disabled" : ""}>
+        ${owned ? "Owned" : "Buy"}
+      </button>
     `;
-    const btn=div.querySelector("button");
+    const btn = div.querySelector("button");
     if (!owned){
       btn.onclick = ()=>{
         if (save.coins < p.price) { alert("Not enough coins!"); return; }
@@ -219,9 +227,46 @@ function renderStore(){
   });
 }
 
-/* --------- Init --------- */
-document.addEventListener('DOMContentLoaded', ()=>{
+/* --------- Init + Events --------- */
+document.addEventListener("DOMContentLoaded", ()=>{
+  // Home
+  $("homeBattleBtn").addEventListener("click", enterArena);
+  $("homeStoreBtn").addEventListener("click", ()=>{ renderStore(); show("store"); });
+  $("portal").addEventListener("click", enterArena);
+
+  // Select
+  $("selectBackBtn").addEventListener("click", ()=> show("home"));
+
+  // Battle
+  $("battleHomeBtn").addEventListener("click", ()=> show("home"));
+  $("battleAgainBtn").addEventListener("click", ()=> show("select"));
+  $("battleStoreBtn").addEventListener("click", ()=> { renderStore(); show("store"); });
+
+  // Store
+  $("storeBackBtn").addEventListener("click", ()=> show("home"));
+
   updateCoinsUI();
-  renderNews();
   show("home");
+  setupBreakingNews();
 });
+// Nav routing
+document.querySelectorAll('.nav-link').forEach(link=>{
+  link.addEventListener('click', e=>{
+    e.preventDefault();
+    const target = link.getAttribute('data-view');
+    if (target === 'store') { renderStore(); }
+    if (target === 'select') { renderSelect(); }
+    show(target);
+
+    document.querySelectorAll('.nav-link').forEach(a=>a.classList.remove('current'));
+    link.classList.add('current');
+  });
+});
+
+
+function setNavCurrent(view){
+  document.querySelectorAll('.nav-link').forEach(a=>{
+    a.classList.toggle('current', a.getAttribute('data-view') === view);
+  });
+}
+
