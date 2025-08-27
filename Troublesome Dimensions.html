@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Troublesome Dimensions</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="main-nav" aria-label="Primary">
+    <div></div>
+    <h1 class="dimensional-title">
+      <a href="#" id="titleHome" data-view="home">Troublesome Dimensions</a>
+    </h1>
+    <div class="nav-links">
+      <a href="#" class="nav-link" data-view="select">My Cards</a>
+      <a href="#" class="nav-link" data-view="store">Store</a>
+      <a href="#" class="nav-link" data-view="login">Login</a>
+      <div class="coins">🪙 <span id="coinsHome">0</span></div>
+    </div>
+  </nav>
+
+  <!-- APP CONTAINER -->
+  <div class="container">
+
+    <!-- HOME -->
+    <section id="home" class="view">
+      <div id="portal-section">
+        <button id="shimmerCta" class="cta-circle" aria-label="Battle">
+          <span class="cta-text">Battle</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- SELECT VIEW -->
+    <section id="select" class="view hidden">
+      <header class="topbar">
+        <button id="selectBackBtn" class="btn">⟵ Back</button>
+        <h2>My Cards</h2>
+        <div class="coins">🪙 <span id="coinsSelect">0</span></div>
+      </header>
+      <div id="selectGrid" class="grid" aria-live="polite"></div>
+    </section>
+
+    <!-- BATTLE VIEW -->
+    <section id="battle" class="view hidden">
+      <header class="topbar">
+        <button id="battleHomeBtn" class="btn">⟵ Home</button>
+        <h2>Arena</h2>
+        <div class="coins">🪙 <span id="coinsBattle">0</span></div>
+      </header>
+      <div class="grid">
+        <div id="playerZone" class="card" aria-live="polite"></div>
+        <div id="aiZone" class="card" aria-live="polite"></div>
+      </div>
+      <div class="spacer"></div>
+      <div id="attackRow" class="row"></div>
+      <p id="resultText" class="center bold"></p>
+      <div class="row">
+        <button id="battleAgainBtn" class="btn">Choose Another</button>
+        <button id="battleStoreBtn" class="btn primary">Visit Store</button>
+      </div>
+    </section>
+
+    <!-- STORE VIEW -->
+    <section id="store" class="view hidden">
+      <header class="topbar">
+        <button id="storeBackBtn" class="btn">⟵ Back</button>
+        <h2>Arcane Emporium</h2>
+        <div class="coins">🪙 <span id="coinsStore">0</span></div>
+      </header>
+      <div id="packList" class="grid"></div>
+    </section>
+
+    <!-- LOGIN VIEW -->
+    <section id="login" class="view hidden">
+      <header class="topbar">
+        <button id="loginBackBtn" class="btn">⟵ Back</button>
+        <h2>Login / Sign Up</h2>
+        <div></div>
+      </header>
+      <form id="loginForm" class="login-form" onsubmit="return false;">
+        <input type="text" placeholder="Username" required />
+        <input type="password" placeholder="Password" required />
+        <button class="btn primary">Login</button>
+        <p class="muted small">No account? (Demo only) – not required to play.</p>
+      </form>
+    </section>
+
+    <!-- NEWS (shows only on Home; JS hides elsewhere) -->
+    <footer id="news-section">
+      <h2 class="news-header">Breaking News from the Multiverse</h2>
+      <div id="news-container">
+        <article class="news-article">
+          <h3>Portal Rift Expands</h3>
+          <p class="teaser">The dimensional tear has grown twice its size...</p>
+          <p class="full-text">Scholars fear this may lead to an unstable multiverse collapse. The Guild of Timekeepers is meeting urgently.</p>
+        </article>
+        <article class="news-article">
+          <h3>Dark Elves Spotted</h3>
+          <p class="teaser">Shadowy figures seen near the Black Forest...</p>
+          <p class="full-text">Reports confirm they are armed and possibly preparing for battle. Locals advised to stay indoors.</p>
+        </article>
+        <article class="news-article">
+          <h3>Dragons on the Horizon</h3>
+          <p class="teaser">Fiery shapes fill the sky above Dragon’s Peak...</p>
+          <p class="full-text">The Council has issued a warning and begun evacuations. Hunters say these dragons seem restless and aggressive.</p>
+        </article>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
