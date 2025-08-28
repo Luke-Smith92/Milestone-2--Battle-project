@@ -111,6 +111,17 @@ No attribution is legally required, but I am including credits for academic inte
 - Wood Elf — Pixabay  
 - Paladin — Pixabay  
 
-**Help & Resources**  
-- General research: Google, StackOverflow, college forums  
-- **ChatGPT**: Assisted with HP bar
+- **ChatGPT**: Assisted with HP bar logic, CSS refactoring, and fixing battle arena paths  
+
+---
+
+## How to Run  
+
+**Option A:**  
+Double-click `Troublesome Dimensions.html` to open locally.  
+
+**Option B:**  
+Run a static server for smoother asset handling:  
+
+```bash
+npx serve .
