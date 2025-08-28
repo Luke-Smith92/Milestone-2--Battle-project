@@ -36,16 +36,16 @@ Adding background lore and rotating “multiverse news” makes it feel more ali
 ## Screenshots
 
 ### Home Page
-![Screenshot of Home page](docs/screenshots/home.png)
+(docs/screenshots/home.png)
 
 ### Card Choice
-![Screenshot of card choice](docs/screenshots/card-choice.png)
+(docs/screenshots/card-choice.png)
 
 ### Battle Arena
-![Screenshot of battle arena](docs/screenshots/battle.png)
+(docs/screenshots/battle.png)
 
 ### Store / Pack Page
-![Screenshot of store](docs/screenshots/store.png)
+(docs/screenshots/store.png)
 
 
 ---
