@@ -125,3 +125,9 @@ Run a static server for smoother asset handling:
 
 ```bash
 npx serve .
+
+## Live Demo
+
+The project is deployed on GitHub Pages and can be accessed here:  
+[https://luke-smith92.github.io/Milestone-2--Battle-project/](https://luke-smith92.github.io/Milestone-2--Battle-project/)
+
