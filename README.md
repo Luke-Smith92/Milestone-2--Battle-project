@@ -35,20 +35,18 @@ Adding background lore and rotating “multiverse news” makes it feel more ali
 
 ## Screenshots
 
-> Replace these with actual screenshots of your site running.  
-> You can add them into a `docs/screenshots/` folder or upload via GitHub.  
+### Home Page
+![Screenshot of Home page](docs/screenshots/home.png)
 
-- Home Page — portal button & multiverse news  
-  ![Screenshot of Home page](docs/screenshots/home.png)
+### Card Choice
+![Screenshot of card choice](docs/screenshots/card-choice.png)
 
-- My Cards — selecting a champion  
-  ![Screenshot of card selection](docs/screenshots/select.png)
+### Battle Arena
+![Screenshot of battle arena](docs/screenshots/battle.png)
 
-- Battle Arena — player vs AI with HP bars  
-  ![Screenshot of battle arena](docs/screenshots/battle.png)
+### Store / Pack Page
+![Screenshot of store](docs/screenshots/store.png)
 
-- Store — buying card packs  
-  ![Screenshot of store](docs/screenshots/store.png)
 
 ---
 
