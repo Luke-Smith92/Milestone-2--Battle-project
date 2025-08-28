@@ -35,21 +35,20 @@ Adding background lore and rotating “multiverse news” makes it feel more ali
 ## Screenshots  
 
 ### Home Page  
-![Screenshot of Home page](docs/screenshots/home.png)  
+![Screenshot of Home page](screenshots/home.png)  
 
 ### Card Choice  
-![Screenshot of card choice](docs/screenshots/card-choice.png)  
+![Screenshot of card choice](screenshots/card-choice.png)  
 
 ### Battle Arena  
-![Screenshot of battle arena](docs/screenshots/battle.png)  
+![Screenshot of battle arena](screenshots/battle.png)  
 
 ### Store / Pack Page  
-![Screenshot of store](docs/screenshots/store.png)  
+![Screenshot of store](screenshots/store.png)  
 
 ### Demo Video  
-[Watch gameplay demo](docs/screenshots/video.mp4)  
+[Watch gameplay demo](screenshots/video.mp4)  
 
----
 
 ## Future Ideas  
 - Add **multiplayer battles** so players can duel each other in real time.  
