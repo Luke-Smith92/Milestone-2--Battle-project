@@ -174,3 +174,21 @@ body{
   #battle .grid{ grid-template-columns: 1fr; }
 }
 
+/* ===== Footer ===== */
+.site-footer{
+  background: rgba(0,0,0,.8);
+  backdrop-filter: blur(2px);
+  color: #fff;
+  text-align: center;
+  padding: 14px 8px;
+  font-size: 0.95rem;
+  border-top: 1px solid rgba(255,255,255,.15);
+  margin-top: 18px;
+}
+.site-footer a{
+  color: #ffcb05;               /* matches your gold highlight */
+  text-decoration: none;
+  font-weight: 600;
+  margin: 0 6px;
+}
+.site-footer a:hover{ text-decoration: underline; }
